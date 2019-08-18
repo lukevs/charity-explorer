@@ -14,10 +14,6 @@ def build_error_response(message):
     return jsonify(error_data), 400
 
 
-def search(query):
-    return []
-
-
 @app.route('/search', methods=['POST'])
 def search():
     if request.json is None:
