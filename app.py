@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 
 from search import search_charities
 
-
+PORT = 8778
 app = Flask(__name__)
 
 
@@ -39,4 +39,4 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(port=8778, debug=True)
+    app.run(port=PORT, debug=True)

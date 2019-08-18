@@ -1,0 +1,20 @@
+.navbar {
+  background: #ff5757 !important;
+}
+
+html {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.search-container { 
+  max-width: 1000px;
+}
+
+.main-results {
+  min-height: 600px;
+}
+#wrapper {
+  flex: 1;
+}
