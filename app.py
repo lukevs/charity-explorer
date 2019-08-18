@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, request
 
+from search import search_charities
+
 
 app = Flask(__name__)
 
@@ -10,6 +12,10 @@ def build_error_response(message):
     }
 
     return jsonify(error_data), 400
+
+
+def search(query):
+    return []
 
 
 @app.route('/search', methods=['POST'])
@@ -25,9 +31,10 @@ def search():
         )
 
     query = request.json['query']
+    results = search_charities(query).to_dict('records')
 
     return jsonify({
-        'results': []
+        'results': results,
     })
 
 
