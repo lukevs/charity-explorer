@@ -1,8 +1,6 @@
-<p align='center'>
-  <img src="./img/square_logo.png"/>
-</p>
-
 # YouCharity
+
+Intelligent charity search backed by BERT and Pytorch.
 
 ## Running the web site
 

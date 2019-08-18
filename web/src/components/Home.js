@@ -77,7 +77,7 @@ export default class Home extends Component {
             <div className="container has-text-centered">
               <h1 className="title">Discover amazing charities.</h1>
               <h2 className="subtitle">
-                Intelligent search backed by{" "}
+                Intelligent charity search backed by{" "}
                 <a href="https://arxiv.org/abs/1810.04805" target="_blank">
                   BERT
                 </a>{" "}
