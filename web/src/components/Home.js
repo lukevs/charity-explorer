@@ -42,7 +42,8 @@ export default class Home extends Component {
 
   _fetch = q => {
     const self = this
-    if (!q || q.length === 1) {
+    if (!q) {
+      alert('Enter whatever charity description or idea is on your mind to search!')
       return
     }
 
@@ -97,7 +98,7 @@ export default class Home extends Component {
                     className="textarea is-medium"
                     value={q}
                     onChange={this.changeQuery}
-                    placeholder="Describe your ideal charity..."
+                    placeholder="Describe your ideal charity with phrases... <3"
                   />
 
                   {!loading && <a class="button is-danger search-button" onClick={() => this.autocompleteSearch(q)}>Search</a>}
@@ -110,12 +111,14 @@ export default class Home extends Component {
                   <img src={loading_spinner}/>
                   </div>}
 
-                {hasResults && !loading && <p className='has-text-centered'>
+                {hasResults && !loading && <p className='has-text-centered result-info-text'>
                   Showing top <b>{results.length}</b> results. Charity matching took <b>{duration}</b> seconds.
                 </p>}
                 {hasResults && !loading && results.map((result, i) => {
+                  const { name, description, url } = result
                   return <div key={i} className='search-result-row' onClick={() => this.resultClicked(result)}>
-                    {JSON.stringify(result)}
+                    <h2 className='search-result-heading'>{name}</h2>
+                    <p>{description}</p>
                   </div>
                 })}
                
@@ -125,6 +128,7 @@ export default class Home extends Component {
                       Clear history
                     </a>
                     <ol>
+                    <p>Recent Searches:</p>
                     {_searches.map((s, i) => {
                       return <li key={s + i}>{s}</li>
                     })}
