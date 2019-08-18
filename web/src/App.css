@@ -15,6 +15,24 @@ html {
 .main-results {
   min-height: 600px;
 }
+
+.search-result-row {
+  padding: 20px;
+}
+
+.search-button { 
+  margin-top: 20px;
+}
+
+.search-result-row:hover {
+  cursor: pointer;
+  background: #eee;
+}
+
+.clear-button { 
+  padding: 20px;
+}
+
 #wrapper {
   flex: 1;
 }

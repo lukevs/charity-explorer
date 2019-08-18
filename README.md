@@ -1,16 +1,32 @@
-# charity-explorer
+<p align='center'>
+  <img src="./img/square_logo.png"/>
+</p>
 
-## Getting started
+# YouCharity
 
-Create a new virtualenv
+## Running the web site
 
-Activate it
+From the `/web` folder, run the following commands:
 
-`pip install -r requirements.txt`
+<pre>
+  yarn
+  yarn start
+</pre>
 
-run with `python app.py`
+The website should now be running on port 3000.
 
-## Search
+## Running the server
+
+* Create a new virtualenv
+* Activate it
+
+<pre>
+  pip install -r requirements.txt`
+</pre>
+
+* Run with `python app.py`
+
+#### Search API
 
 **Request**
 ```

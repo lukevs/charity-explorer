@@ -12,6 +12,7 @@ def get_description(url):
                         break
                 body.append(item.text)
         return ' '.join(body)
+
 url = 'https://en.wikipedia.org//wiki/The_Alliance_for_Safe_Children'
 url = 'https://en.wikipedia.org//wiki/American_Heart_Association'
 desc = get_description(url)

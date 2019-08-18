@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS, cross_origin
 
 from search import search_charities
 
 PORT = 8778
 app = Flask(__name__)
 
+CORS(app) # TODO: remove for a prod deployment
 
 def build_error_response(message):
     error_data = {
@@ -13,6 +15,11 @@ def build_error_response(message):
 
     return jsonify(error_data), 400
 
+@app.route('/hello', methods=['GET'])
+def welcome():
+    return jsonify({
+        'result': 'Welcome to YouCharity!'
+    })
 
 @app.route('/search', methods=['POST'])
 def search():
