@@ -13,8 +13,8 @@ run with `python app.py`
 ## Search
 
 **Request**
-`POST localhost:8778/search`
 ```
+POST localhost:8778/search
 {
   "query": "I want a dog"
 }
