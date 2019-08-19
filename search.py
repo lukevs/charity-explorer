@@ -1,79 +1,73 @@
 import torch
 from pytorch_transformers import BertTokenizer
-from pytorch_transformers import BertForNextSentencePrediction
+from pytorch_transformers import BertModel
 from torch.nn.utils.rnn import pad_sequence
 
 from charities import load_all_charities
+from utils import batch
 
 
 BERT_MODEL_VERSION = 'bert-base-uncased'
+EMBEDDINGS_BATCH_SIZE = 10
 
 
-charities = load_all_charities()
 tokenizer = BertTokenizer.from_pretrained(BERT_MODEL_VERSION)
-model = BertForNextSentencePrediction.from_pretrained(BERT_MODEL_VERSION)
+model = BertModel.from_pretrained(BERT_MODEL_VERSION)
 model.eval()
 
 
-def predict_next_sentence_probabilities(query, documents):
-    all_indexed_tokens = []
-    all_segments_ids = []
+def get_embeddings(documents):
+    all_embeddings = [
+        _get_embeddings(doc_batch)
+        for doc_batch in batch(documents, EMBEDDINGS_BATCH_SIZE)
+    ]
 
-    with torch.no_grad():
-        tokenized_query = (
+    return torch.cat(
+        all_embeddings,
+        dim=0,
+    )
+
+
+def _get_embeddings(documents):
+    all_indexed_tokens = []
+
+    for text in documents:
+        tokenized_text = (
             [tokenizer.cls_token] +
-            tokenizer.tokenize(query) +
+            tokenizer.tokenize(text) +
             [tokenizer.sep_token]
         )
 
-        for document_sentence in documents:
-            tokenzied_document = (
-                tokenizer.tokenize(document_sentence) +
-                [tokenizer.sep_token]
-            )
+        indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
+        all_indexed_tokens.append(torch.tensor(indexed_tokens))
 
-            indexed_tokens = tokenizer.convert_tokens_to_ids(
-                tokenized_query + tokenzied_document,
-            )
+    tokens_tensor = pad_sequence(all_indexed_tokens, batch_first=True)
+    attention_mask = torch.where(
+        tokens_tensor != 0,
+        torch.ones(tokens_tensor.shape),
+        torch.zeros(tokens_tensor.shape),
+    )
 
-            segments_ids = (
-                [0] * len(tokenized_query) +
-                [1] * len(tokenzied_document)
-            )
+    hidden_states, _ = model(
+        tokens_tensor,
+        attention_mask=attention_mask,
+    )
 
-            all_indexed_tokens.append(torch.tensor(indexed_tokens))
-            all_segments_ids.append(torch.tensor(segments_ids))
+    return hidden_states.permute(1, 0, 2).sum(axis=0)
 
-        tokens_tensor = pad_sequence(
-            all_indexed_tokens,
-            batch_first=True,
-        )
 
-        segments_tensors = pad_sequence(
-            all_segments_ids,
-            batch_first=True,
-        )
-
-        predictions = model(
-            tokens_tensor,
-            segments_tensors,
-        )[0]
-
-        prob_scores = torch.nn.functional.softmax(
-            predictions,
-            dim=1,
-        )[:, 0]
-
-        return prob_scores
+charities = load_all_charities()
+charity_vectors = get_embeddings(charities['description'].tolist())
 
 
 def search_charities(query, top_n=5):
-    descriptions = charities['description'].tolist()
-    probs = predict_next_sentence_probabilities(
-        query,
-        descriptions,
+    [query_vector] = get_embeddings([query])
+    distances = torch.norm(
+        charity_vectors - query_vector,
+        p=2,
+        dim=1,
     )
 
-    best_match_indices = torch.argsort(probs).numpy()[::-1][:top_n]
+    best_match_indices = torch.argsort(distances)[:top_n]
 
     return charities.iloc[best_match_indices]
