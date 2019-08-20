@@ -2,9 +2,6 @@ import torch
 from pytorch_transformers import BertTokenizer
 from pytorch_transformers import BertModel
 from torch.nn.utils.rnn import pad_sequence
-from tqdm import tqdm
-
-from utils import batch
 
 
 BERT_MODEL_VERSION = 'bert-base-uncased'

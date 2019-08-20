@@ -4,10 +4,10 @@ from charity import CharityIndex
 
 
 @click.command()
-@click.argument('source-csv')
+@click.argument('source-tsv')
 @click.argument('output-dir')
-def main(source_csv, output_dir):
-    index = CharityIndex.build_from_csv(source_csv)
+def main(source_tsv, output_dir):
+    index = CharityIndex.build_from_tsv(source_tsv)
     index.save(output_dir)
 
 
