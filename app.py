@@ -1,12 +1,19 @@
+import dataclasses
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 
-from search import search_charities
+from charity import CharityIndex
+
 
 PORT = 8778
 app = Flask(__name__)
 
 CORS(app) # TODO: remove for a prod deployment
+
+DEFAULT_INDEX_PATH = './index'
+charity_index = CharityIndex.load(DEFAULT_INDEX_PATH)
+
 
 def build_error_response(message):
     error_data = {
@@ -34,10 +41,14 @@ def search():
         )
 
     query = request.json['query']
-    results = search_charities(query).to_dict('records')
+    results = charity_index.search(query)
+    results_as_dict = [
+        dataclasses.asdict(charity)
+        for charity in results
+    ]
 
     return jsonify({
-        'results': results,
+        'results': results_as_dict,
     })
 
 
