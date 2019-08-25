@@ -2,14 +2,31 @@ import csv
 import dataclasses
 import json
 import os
+import re
 
+import nltk
 import numpy as np
 import pandas as pd
 import torch
+from InferSent.models import InferSent
+from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
 
-from embeddings import embed
 from utils import batch
+
+nltk.download('punkt')
+
+MODEL_VERSION = 2
+MODEL_PATH = 'encoder/infersent%s.pkl' % MODEL_VERSION
+MODEL_PARAMS = {
+    'bsize': 64,
+    'word_emb_dim': 300,
+    'enc_lstm_dim': 2048,
+    'pool_type': 'max',
+    'dpout_model': 0.0,
+    'version': MODEL_VERSION
+}
+W2V_PATH = 'fastText/crawl-300d-2M.vec'
 
 
 @dataclasses.dataclass
@@ -24,27 +41,35 @@ class CharityIndex:
     _EMBED_FILENAME = 'embeddings.npy'
     _INDEX_FILENAME = 'index.json'
 
-    _EMBED_BATCH_SIZE = 10
-    _SEARCH_TOP_N_SENTENCES = 1
+    _SEARCH_TOP_N_SENTENCES = 4
 
-    def __init__(self, charities, embeddings, embeddings_charity_index):
+    def __init__(self, model, charities, embeddings, embeddings_charity_index):
+        self._model = model
         self._charities = charities
         self._embeddings = embeddings
         self._embeddings_charity_index = embeddings_charity_index
 
-        self._embeddings_normalized = (
-            self._embeddings /
-            torch.norm(self._embeddings, p=2, dim=0)
-        )
+    @classmethod
+    def _build_initialized_model(cls, initial_sentences):
+        model = InferSent(MODEL_PARAMS)
+        model.load_state_dict(torch.load(MODEL_PATH))
+        model.set_w2v_path(W2V_PATH)
+        model.build_vocab(initial_sentences, tokenize=True)
+
+        return model
 
     @classmethod
     def build(cls, charities):
         embeddings_charity_index = []
         embeddings_list = []
 
+        all_descriptions = [charity.description for charity in charities]
+        model = cls._build_initialized_model(all_descriptions)
+
         with tqdm(total=len(charities)) as progress_bar:
             for charity_index, charity in enumerate(charities):
                 embeddings = cls._get_sentence_embeddings(
+                    model,
                     charity.description,
                 )
 
@@ -58,26 +83,27 @@ class CharityIndex:
         embeddings = torch.cat(embeddings_list)
 
         return cls(
+            model,
             charities,
             embeddings,
             embeddings_charity_index,
         )
 
     @classmethod
-    def _get_sentence_embeddings(cls, description):
-        embeddings_list = []
-
-        # TODO - be smarter about this
+    def _get_sentence_embeddings(cls, model, description):
         sentences = [
-            sentence.strip() for sentence in description.split('.')
-            if sentence.strip() != ''
+            cls._clean_sentence(sentence)
+            for sentence in sent_tokenize(description)
         ]
 
-        for sentence_batch in batch(sentences, cls._EMBED_BATCH_SIZE):
-            embeddings = embed(sentence_batch)
-            embeddings_list.append(embeddings)
+        return torch.tensor(model.encode(
+            sentences,
+            tokenize=True,
+        ))
 
-        return torch.cat(embeddings_list)
+    @staticmethod
+    def _clean_sentence(text):
+        return re.sub(r'\[\w+\]\s+?', '', text).strip()
 
     @classmethod
     def build_from_tsv(cls, tsv_path):
@@ -110,7 +136,11 @@ class CharityIndex:
 
         embeddings = torch.tensor(np.load(embeddings_path))
 
+        all_descriptions = [charity.description for charity in charities]
+        model = cls._build_initialized_model(all_descriptions)
+
         return cls(
+            model,
             charities,
             embeddings,
             embeddings_charity_index,
@@ -138,15 +168,11 @@ class CharityIndex:
         np.save(embeddings_path, self._embeddings.numpy())
 
     def search(self, query, top_n=5):
-        [query_embedding] = embed([query])
-        query_embedding_normalized = (
-            query_embedding /
-            torch.norm(query_embedding, p=2)
-        )
-
-        similarities = torch.matmul(
-            self._embeddings_normalized,
-            query_embedding_normalized.t(),
+        [query_embedding] = torch.tensor(self._model.encode([query]))
+        similarities = -torch.norm(
+            self._embeddings - query_embedding,
+            p=2,
+            dim=1,
         )
 
         charity_similarities = pd.DataFrame({
