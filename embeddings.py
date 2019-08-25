@@ -12,7 +12,7 @@ model = BertModel.from_pretrained(BERT_MODEL_VERSION)
 model.eval()
 
 
-def get_embeddings(documents):
+def embed(documents):
     all_indexed_tokens = []
 
     with torch.no_grad():

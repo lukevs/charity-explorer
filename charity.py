@@ -8,7 +8,7 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 
-from bert import get_embeddings
+from embeddings import embed
 from utils import batch
 
 
@@ -74,7 +74,7 @@ class CharityIndex:
         ]
 
         for sentence_batch in batch(sentences, cls._EMBED_BATCH_SIZE):
-            embeddings = get_embeddings(sentence_batch)
+            embeddings = embed(sentence_batch)
             embeddings_list.append(embeddings)
 
         return torch.cat(embeddings_list)
@@ -138,7 +138,7 @@ class CharityIndex:
         np.save(embeddings_path, self._embeddings.numpy())
 
     def search(self, query, top_n=5):
-        [query_embedding] = get_embeddings([query])
+        [query_embedding] = embed([query])
         query_embedding_normalized = (
             query_embedding /
             torch.norm(query_embedding, p=2)
