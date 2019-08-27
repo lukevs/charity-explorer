@@ -48,6 +48,7 @@ class CharityIndex:
         self._charities = charities
         self._embeddings = embeddings
         self._embeddings_charity_index = embeddings_charity_index
+        self._embeddings_normalized = (self._embeddings.t() / torch.norm(self._embeddings, p=2, dim=1)).t()
 
     @classmethod
     def _build_initialized_model(cls, initial_sentences):
@@ -169,10 +170,13 @@ class CharityIndex:
 
     def search(self, query, top_n=5):
         [query_embedding] = torch.tensor(self._model.encode([query]))
-        similarities = -torch.norm(
-            self._embeddings - query_embedding,
-            p=2,
-            dim=1,
+        query_normalized = (
+            query_embedding / torch.norm(query_embedding, p=2)
+        )
+
+        similarities = torch.matmul(
+            self._embeddings_normalized,
+            query_normalized.t(),
         )
 
         charity_similarities = pd.DataFrame({
