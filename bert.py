@@ -5,7 +5,7 @@ from torch.nn.utils.rnn import pad_sequence
 
 
 BERT_MODEL_VERSION = 'bert-base-uncased'
-EMBED_BATCH_SIZE = 10
+EMBED_BATCH_SIZE = 100
 
 tokenizer = BertTokenizer.from_pretrained(BERT_MODEL_VERSION)
 model = BertModel.from_pretrained(BERT_MODEL_VERSION)
