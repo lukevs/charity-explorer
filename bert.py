@@ -45,4 +45,5 @@ def get_embeddings(documents):
             attention_mask=attention_mask,
         )
 
-        return hidden_states.permute(1, 0, 2).sum(axis=0)
+        # 0th element of 1st dim is CLS token
+        return hidden_states[:, 0, :]
