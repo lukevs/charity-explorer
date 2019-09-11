@@ -9,7 +9,6 @@ import pandas as pd
 import torch
 from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
-from torch.nn.functional import cosine_similarity
 
 from bert import calculate_similarities
 from bert import embed_sentences
@@ -43,8 +42,6 @@ class CharityIndex:
     _CHARITY_FILENAME = 'charities.json'
     _EMBED_FILENAME = 'embeddings.npy'
     _INDEX_FILENAME = 'index.json'
-
-    _SEARCH_TOP_N_SENTENCES = 1
 
     def __init__(self, charities, embeddings, embeddings_charity_index):
         self._charities = charities
@@ -140,7 +137,7 @@ class CharityIndex:
 
         np.save(embeddings_path, self._embeddings.cpu().numpy())
 
-    def search(self, query, top_n=5):
+    def search(self, query, top_n=5, use_top_n_sentences=5):
         query_embedding = embed_sentences([query]).cpu()
         similarities = calculate_similarities(
             query_embedding,
@@ -155,7 +152,7 @@ class CharityIndex:
         best_match_indices = (charity_similarities
             .sort_values('similarity', ascending=False)
             .groupby('charity')
-            .head(self._SEARCH_TOP_N_SENTENCES)
+            .head(use_top_n_sentences)
             .groupby('charity')
             .mean()
             .sort_values('similarity', ascending=False)
