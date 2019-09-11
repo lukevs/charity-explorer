@@ -8,8 +8,15 @@ BERT_MODEL_VERSION = 'bert-base-uncased'
 EMBED_BATCH_SIZE = 10
 
 tokenizer = BertTokenizer.from_pretrained(BERT_MODEL_VERSION)
-model = BertModel.from_pretrained(BERT_MODEL_VERSION, output_hidden_states=True)
+model = BertModel.from_pretrained(
+    BERT_MODEL_VERSION,
+    output_hidden_states=True,
+)
+
 model.eval()
+
+if torch.cuda.is_available():
+    model.cuda()
 
 
 def embed(documents):

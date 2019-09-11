@@ -15,6 +15,25 @@ from bert import embed
 from utils import batch
 
 
+MAX_SENTENCE_LENGTH = 512
+
+
+def _get_sentence_embeddings(description, embed_batch_size=10):
+    embeddings_list = []
+
+    sentences = [
+        re.sub('\[\d+\]', '', sent).strip().lower()[:MAX_SENTENCE_LENGTH]
+        for sent in sent_tokenize(description)
+    ]
+
+    for sentence_batch in batch(sentences, embed_batch_size):
+        embeddings = embed(sentence_batch)
+        embeddings_list.append(embeddings)
+
+    return torch.cat(embeddings_list)
+
+
+
 @dataclasses.dataclass
 class Charity:
     name: str
@@ -27,9 +46,7 @@ class CharityIndex:
     _EMBED_FILENAME = 'embeddings.npy'
     _INDEX_FILENAME = 'index.json'
 
-    _EMBED_BATCH_SIZE = 10
     _SEARCH_TOP_N_SENTENCES = 1
-    _MAX_SENTENCE_LENGTH = 512
 
     def __init__(self, charities, embeddings, embeddings_charity_index):
         self._charities = charities
@@ -48,7 +65,7 @@ class CharityIndex:
 
         with tqdm(total=len(charities)) as progress_bar:
             for charity_index, charity in enumerate(charities):
-                embeddings = cls._get_sentence_embeddings(
+                embeddings = _get_sentence_embeddings(
                     charity.description,
                 )
 
@@ -66,21 +83,6 @@ class CharityIndex:
             embeddings,
             embeddings_charity_index,
         )
-
-    @classmethod
-    def _get_sentence_embeddings(cls, description):
-        embeddings_list = []
-
-        sentences = [
-            re.sub('\[\d+\]', '', sent).strip().lower()[:cls._MAX_SENTENCE_LENGTH]
-            for sent in sent_tokenize(description)
-        ]
-
-        for sentence_batch in batch(sentences, cls._EMBED_BATCH_SIZE):
-            embeddings = embed(sentence_batch)
-            embeddings_list.append(embeddings)
-
-        return torch.cat(embeddings_list)
 
     @classmethod
     def build_from_tsv(cls, tsv_path):
