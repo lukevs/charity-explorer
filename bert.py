@@ -1,6 +1,7 @@
 import torch
 from pytorch_transformers import BertForNextSentencePrediction
 from pytorch_transformers import BertTokenizer
+from torch.nn.functional import cosine_similarity
 from torch.nn.utils.rnn import pad_sequence
 
 
