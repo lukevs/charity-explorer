@@ -11,31 +11,21 @@ from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
 from torch.nn.functional import cosine_similarity
 
-from bert import embed
+from bert import calculate_similarities
+from bert import embed_sentences
 from utils import batch
-
-
-MAX_SENTENCE_LENGTH = 512
-
-
-def _get_embedding_similarities(query_embedding, document_embeddings):
-    return cosine_similarity(
-        query_embedding,
-        document_embeddings,
-        dim=1,
-    )
 
 
 def _get_sentence_embeddings(description, embed_batch_size=10):
     embeddings_list = []
 
     sentences = [
-        re.sub('\[\d+\]', '', sent).strip().lower()[:MAX_SENTENCE_LENGTH]
+        re.sub('\[\d+\]', '', sent).strip().lower()
         for sent in sent_tokenize(description)
     ]
 
     for sentence_batch in batch(sentences, embed_batch_size):
-        embeddings = embed(sentence_batch)
+        embeddings = embed_sentences(sentence_batch)
         embeddings_list.append(embeddings)
 
     return torch.cat(embeddings_list)
@@ -148,11 +138,11 @@ class CharityIndex:
                 index_file,
             )
 
-        np.save(embeddings_path, self._embeddings.numpy())
+        np.save(embeddings_path, self._embeddings.cpu().numpy())
 
     def search(self, query, top_n=5):
-        query_embedding = embed([query])
-        similarities = _get_embedding_similarities(
+        query_embedding = embed_sentences([query]).cpu()
+        similarities = calculate_similarities(
             query_embedding,
             self._embeddings,
         )

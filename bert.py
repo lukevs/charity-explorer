@@ -1,14 +1,15 @@
 import torch
+from pytorch_transformers import BertForNextSentencePrediction
 from pytorch_transformers import BertTokenizer
-from pytorch_transformers import BertModel
 from torch.nn.utils.rnn import pad_sequence
 
 
 BERT_MODEL_VERSION = 'bert-base-uncased'
-EMBED_BATCH_SIZE = 10
+MAX_SENTENCE_LENGTH = 512
+
 
 tokenizer = BertTokenizer.from_pretrained(BERT_MODEL_VERSION)
-model = BertModel.from_pretrained(
+model = BertForNextSentencePrediction.from_pretrained(
     BERT_MODEL_VERSION,
     output_hidden_states=True,
 )
@@ -19,13 +20,25 @@ if torch.cuda.is_available():
     model.cuda()
 
 
-def embed(documents):
+def calculate_similarities(
+        query_embedding,
+        document_embeddings,
+    ):
+
+    return cosine_similarity(
+        query_embedding,
+        document_embeddings,
+        dim=1,
+    )
+
+
+def embed_sentences(sentences):
   all_indexed_tokens = []
  
-  for text in documents:
+  for text in sentences:
       tokenized_text = (
           [tokenizer.cls_token] +
-          tokenizer.tokenize(text) +
+          tokenizer.tokenize(text[:MAX_SENTENCE_LENGTH - 2]) +
           [tokenizer.sep_token]
       )
 
@@ -51,7 +64,7 @@ def embed(documents):
     attention_mask = attention_mask.cuda()
 
   with torch.no_grad():
-        output = model(
+        output = model.bert(
             tokens_tensor,
             attention_mask=attention_mask,
         )
