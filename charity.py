@@ -18,6 +18,14 @@ from utils import batch
 MAX_SENTENCE_LENGTH = 512
 
 
+def _get_embedding_similarities(query_embedding, document_embeddings):
+    return cosine_similarity(
+        query_embedding,
+        document_embeddings,
+        dim=1,
+    )
+
+
 def _get_sentence_embeddings(description, embed_batch_size=10):
     embeddings_list = []
 
@@ -144,11 +152,9 @@ class CharityIndex:
 
     def search(self, query, top_n=5):
         query_embedding = embed([query])
-
-        similarities = cosine_similarity(
+        similarities = _get_embedding_similarities(
             query_embedding,
             self._embeddings,
-            dim=1,
         )
 
         charity_similarities = pd.DataFrame({
