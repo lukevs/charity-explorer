@@ -2,13 +2,16 @@ import csv
 import dataclasses
 import json
 import os
+import re
 
 import numpy as np
 import pandas as pd
 import torch
+from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
+from torch.nn.functional import cosine_similarity
 
-from bert import get_embeddings
+from bert import embed
 from utils import batch
 
 
@@ -26,6 +29,7 @@ class CharityIndex:
 
     _EMBED_BATCH_SIZE = 10
     _SEARCH_TOP_N_SENTENCES = 1
+    _MAX_SENTENCE_LENGTH = 512
 
     def __init__(self, charities, embeddings, embeddings_charity_index):
         self._charities = charities
@@ -67,14 +71,13 @@ class CharityIndex:
     def _get_sentence_embeddings(cls, description):
         embeddings_list = []
 
-        # TODO - be smarter about this
         sentences = [
-            sentence.strip() for sentence in description.split('.')
-            if sentence.strip() != ''
+            re.sub('\[\d+\]', '', sent).strip().lower()[:cls._MAX_SENTENCE_LENGTH]
+            for sent in sent_tokenize(description)
         ]
 
         for sentence_batch in batch(sentences, cls._EMBED_BATCH_SIZE):
-            embeddings = get_embeddings(sentence_batch)
+            embeddings = embed(sentence_batch)
             embeddings_list.append(embeddings)
 
         return torch.cat(embeddings_list)
@@ -138,15 +141,12 @@ class CharityIndex:
         np.save(embeddings_path, self._embeddings.numpy())
 
     def search(self, query, top_n=5):
-        [query_embedding] = get_embeddings([query])
-        query_embedding_normalized = (
-            query_embedding /
-            torch.norm(query_embedding, p=2)
-        )
+        query_embedding = embed([query])
 
-        similarities = torch.matmul(
-            self._embeddings_normalized,
-            query_embedding_normalized.t(),
+        similarities = cosine_similarity(
+            query_embedding,
+            self._embeddings,
+            dim=1,
         )
 
         charity_similarities = pd.DataFrame({
