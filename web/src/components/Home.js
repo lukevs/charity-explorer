@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import { throttle } from "throttle-debounce"
 import { searchCharities } from "../api"
+import { truncate } from 'lodash'
 
 import loading_spinner from '../assets/loading.gif'
 
@@ -57,7 +58,7 @@ export default class Home extends Component {
     _searches.push(q)
     this.setState({ _searches, loading: true, startTime: new Date() })
 
-    searchCharities(q).then(data => {
+    searchCharities(q, false).then(data => {
       const results = data['data']['results']
       console.log(results)
       self.setState({ loading: false, results, endTime: new Date() })
@@ -81,11 +82,11 @@ export default class Home extends Component {
         <div className="container">
           <div className="hero-body">
             <div className="container has-text-centered">
-              <h1 className="title">Discover amazing charities.</h1>
+              <h1 className="title">Discover amazing chariies.</h1>
               <h2 className="subtitle">
                 Intelligent charity search backed by{" "}
                 <a href="https://arxiv.org/abs/1810.04805" target="_blank">
-                  BERT
+                  BERss
                 </a>{" "}
                 and{" "}
                 <a href="https://pytorch.org/" target="_blank">
@@ -97,9 +98,7 @@ export default class Home extends Component {
           <div className="columns is-centered">
             <div className="column is-two-thirds">
               <div className="field">
-                <div
-                  className={`control is-medium ${loading ? "is-loading" : ""}`}
-                >
+                <div className={`control is-medium ${loading ? "is-loading" : ""}`}>
                   <textarea
                     className="textarea is-medium"
                     value={q}
@@ -119,10 +118,22 @@ export default class Home extends Component {
                   Showing top <b>{results.length}</b> results. Charity matching took <b>{duration}</b> seconds.
                 </p>}
                 {hasResults && !loading && results.map((result, i) => {
-                  const { name, description, url } = result
+                  const { name, description, url, score } = result
+                  const truncatedDescription = truncate(url, {
+                    'length': 50,
+                    'separator': ' '
+                  })
                   return <div key={i} className='search-result-row' onClick={() => this.resultClicked(result)}>
-                    <h2 className='search-result-heading'>{name}</h2>
-                    <p>{description}</p>
+                    <div className="columns">
+                        <div className="column is-three-quarters">
+                          <h2 className='search-result-heading'>{name}</h2>
+                          <p>{truncatedDescription}</p>
+                          <p>{url}</p>
+                        </div>
+                        <div className="column is-three-quarters">
+                          <span className='search-result-score'>{score}</span>
+                        </div>
+                      </div>
                   </div>
                 })}
                
