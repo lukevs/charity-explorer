@@ -160,7 +160,7 @@ export default class Home extends Component {
                       <b>Charity</b>
                     </div>
                     <div className="column rel-col is-one-quarter">
-                      <b>Relevance</b>
+                      <b>Relevance Score</b>
                     </div>
                   </div>
                 )}
@@ -181,7 +181,7 @@ export default class Home extends Component {
                       >
                         <div className="columns">
                           <div className="column is-three-quarters">
-                            <h2 className="search-result-heading">{name}</h2>
+                            <h2 className="search-result-heading">{i+1}. {name}</h2>
                             <p>{truncatedDescription}</p>
                             <a
                               href={url}
@@ -217,7 +217,7 @@ export default class Home extends Component {
                     {_searches.map((s, i) => {
                       return (
                         <div key={s + i}>
-                          <b>{i + 1}.</b> {s}
+                          <b>{s}</b>
                         </div>
                       )
                     })}
