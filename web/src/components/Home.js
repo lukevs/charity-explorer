@@ -101,7 +101,7 @@ export default class Home extends Component {
               <img src={heartLogo} className="header-logo" />
               <h1 className="title">Discover amazing charities.</h1>
               <h2 className="subtitle">
-                Intelligent charity search backed by{" "}
+                Searching nearly 400 charities, backed by{" "}
                 <a href="https://arxiv.org/abs/1810.04805" target="_blank">
                   BERT
                 </a>{" "}
