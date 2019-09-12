@@ -39,7 +39,7 @@ def calculate_next_sentence_probability(query, sentences):
     tokenized_query = tokenizer.tokenize(query)
     max_sentence_length = (
         MAX_SENTENCE_LENGTH -
-        2 -
+        3 -
         len(tokenized_query)
     )
 
