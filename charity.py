@@ -183,7 +183,7 @@ class CharityIndex:
                 descriptions,
             )
 
-            rank_indices = torch.argsort(probabilities)
+            rank_indices = torch.argsort(probabilities).numpy()[::-1]
 
             return [
                 matched_charities[i]
