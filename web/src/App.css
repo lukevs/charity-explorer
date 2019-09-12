@@ -17,6 +17,7 @@ html {
 }
 
 .search-result-row {
+  height: 250px;
   padding: 20px;
   border-top: 1px solid black;
 }
@@ -27,6 +28,16 @@ html {
 
 .result-info-text {
   margin-bottom: 25px;
+}
+
+.search-result-url {
+  margin-top: 20px;
+  /* overflow: hidden; */
+}
+
+.search-result-score {
+  line-height: 250px;
+  font-size: 48px;
 }
 
 .search-result-heading {

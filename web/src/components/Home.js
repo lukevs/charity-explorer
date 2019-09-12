@@ -82,11 +82,11 @@ export default class Home extends Component {
         <div className="container">
           <div className="hero-body">
             <div className="container has-text-centered">
-              <h1 className="title">Discover amazing chariies.</h1>
+              <h1 className="title">Discover amazing charities.</h1>
               <h2 className="subtitle">
                 Intelligent charity search backed by{" "}
                 <a href="https://arxiv.org/abs/1810.04805" target="_blank">
-                  BERss
+                  BERT
                 </a>{" "}
                 and{" "}
                 <a href="https://pytorch.org/" target="_blank">
@@ -119,8 +119,8 @@ export default class Home extends Component {
                 </p>}
                 {hasResults && !loading && results.map((result, i) => {
                   const { name, description, url, score } = result
-                  const truncatedDescription = truncate(url, {
-                    'length': 50,
+                  const truncatedDescription = truncate(description, {
+                    'length': 250,
                     'separator': ' '
                   })
                   return <div key={i} className='search-result-row' onClick={() => this.resultClicked(result)}>
@@ -128,10 +128,10 @@ export default class Home extends Component {
                         <div className="column is-three-quarters">
                           <h2 className='search-result-heading'>{name}</h2>
                           <p>{truncatedDescription}</p>
-                          <p>{url}</p>
+                          <p className='search-result-url'>{url}</p>
                         </div>
-                        <div className="column is-three-quarters">
-                          <span className='search-result-score'>{score}</span>
+                        <div className="column is-one-quarter">
+                          <span className='search-result-score'>{score || 50}</span>
                         </div>
                       </div>
                   </div>
