@@ -30,6 +30,10 @@ html {
   margin-right: 20px;
 }
 
+.rank-input {
+  font-size: 14px !important;
+}
+
 .search-button { 
   padding: 20px 30px 20px 30px !important;
   font-size: 20px !important;
