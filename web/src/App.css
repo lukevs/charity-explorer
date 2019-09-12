@@ -17,7 +17,7 @@ html {
 }
 
 .search-result-row {
-  height: 220px;
+  /* height: 220px; */
   padding: 20px;
   border-top: 1px solid black;
 }
@@ -27,11 +27,16 @@ html {
 }
 
 .rel-col {
+  margin-left: 20px;
   margin-right: 20px;
 }
 
 .rank-input {
   font-size: 14px !important;
+}
+
+.search-area {
+  padding: 10px;
 }
 
 .search-button { 
@@ -57,7 +62,7 @@ html {
 }
 
 .search-result-score {
-  line-height: 180px;
+  /* line-height: 180px; */
   font-size: 48px;
 }
 

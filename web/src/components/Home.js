@@ -110,13 +110,13 @@ export default class Home extends Component {
                   Pytorch
                 </a>
               </h2>
-              <label class="checkbox" className='rank-input'>
+              <label className="checkbox" className='rank-input'>
                 <input type="checkbox" value={ranking} onChange={() => this.toggleRank()}/>&nbsp;
                 <span>Use sentence prediction: More accurate, less fast.</span>
               </label>
             </div>
           </div>
-          <div className="columns is-centered">
+          <div className="columns is-centered search-area">
             <div className="column is-two-thirds">
               <div className="field">
                 <div
@@ -184,7 +184,6 @@ export default class Home extends Component {
                             <h2 className="search-result-heading">{i+1}. {name}</h2>
                             <p>{truncatedDescription}</p>
                             <a
-                              href={url}
                               target="_blank"
                               className="search-result-url"
                             >
