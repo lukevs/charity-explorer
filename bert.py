@@ -79,7 +79,7 @@ def calculate_next_sentence_probability(query, sentences):
               attention_mask=attention_mask,
           )
 
-    return softmax(outputs[0])[:, 0]
+    return softmax(outputs[0], dim=1)[:, 0]
 
 
 def embed_sentences(sentences):
