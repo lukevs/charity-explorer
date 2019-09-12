@@ -2,6 +2,7 @@ import torch
 from pytorch_transformers import BertForNextSentencePrediction
 from pytorch_transformers import BertTokenizer
 from torch.nn.functional import cosine_similarity
+from torch.nn.functional import softmax
 from torch.nn.utils.rnn import pad_sequence
 
 
@@ -31,6 +32,54 @@ def calculate_similarities(
         document_embeddings,
         dim=1,
     )
+
+
+def calculate_next_sentence_probability(query, sentences):
+    all_indexed_tokens = []
+    tokenized_query = tokenizer.tokenize(query)
+    max_sentence_length = (
+        MAX_SENTENCE_LENGTH -
+        2 -
+        len(tokenized_query)
+    )
+
+    for sentence in sentences:
+        tokenized_text = (
+            [tokenizer.cls_token] +
+            tokenizer.tokenize(query) +
+            [tokenizer.sep_token] +
+            tokenizer.tokenize(sentence)[:max_sentence_length] +
+            [tokenizer.sep_token]
+        )
+
+        indexed_tokens = tokenizer.convert_tokens_to_ids(
+            tokenized_text,
+        )
+
+        all_indexed_tokens.append(torch.tensor(indexed_tokens))
+
+    tokens_tensor = pad_sequence(
+        all_indexed_tokens,
+        batch_first=True,
+    )
+
+    attention_mask = torch.where(
+        tokens_tensor != 0,
+        torch.ones(tokens_tensor.shape),
+        torch.zeros(tokens_tensor.shape),
+    )
+
+    if torch.cuda.is_available():
+        tokens_tensor = tokens_tensor.cuda()
+        attention_mask = attention_mask.cuda()
+
+    with torch.no_grad():
+          outputs = model(
+              tokens_tensor,
+              attention_mask=attention_mask,
+          )
+
+    return softmax(outputs[0])[:, 0]
 
 
 def embed_sentences(sentences):

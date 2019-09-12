@@ -10,6 +10,7 @@ import torch
 from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
 
+from bert import calculate_next_sentence_probability
 from bert import calculate_similarities
 from bert import embed_sentences
 from utils import batch
@@ -137,7 +138,13 @@ class CharityIndex:
 
         np.save(embeddings_path, self._embeddings.cpu().numpy())
 
-    def search(self, query, top_n=5, use_top_n_sentences=5):
+    def search(
+            self,
+            query,
+            top_n=5,
+            use_top_n_sentences=20,
+            rank_with_next_sentence_prediction=True,
+        ):
         query_embedding = embed_sentences([query]).cpu()
         similarities = calculate_similarities(
             query_embedding,
@@ -160,10 +167,30 @@ class CharityIndex:
             .index
             .tolist())
 
-        return [
+        matched_charities = [
             self._charities[i]
             for i in best_match_indices
         ]
+
+        if rank_with_next_sentence_prediction:
+            descriptions = [
+                charity.description
+                for charity in matched_charities
+            ]
+
+            probabilities = calculate_next_sentence_probability(
+                query,
+                descriptions,
+            )
+
+            rank_indices = torch.argsort(probabilities)
+
+            return [
+                matched_charities[i]
+                for i in rank_indices
+            ]
+
+        return matched_charities
 
     @classmethod
     def _get_charity_path(cls, path):
