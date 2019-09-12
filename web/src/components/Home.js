@@ -2,6 +2,8 @@ import React, { Component } from "react"
 import { throttle } from "throttle-debounce"
 import { searchCharities } from "../api"
 import { truncate } from 'lodash'
+import tinygradient from 'tinygradient'
+import heartLogo from '../assets/heart_logo.png'
 
 import loading_spinner from '../assets/loading.gif'
 
@@ -77,11 +79,15 @@ export default class Home extends Component {
 
     const hasResults = results && results.length > 0
 
+    const gradient = tinygradient('red', 'yellow', 'green')
+    const colors = gradient.rgb(101)
+
     return (
       <div>
         <div className="container">
           <div className="hero-body">
             <div className="container has-text-centered">
+              <img src={heartLogo} className='header-logo'/>
               <h1 className="title">Discover amazing charities.</h1>
               <h2 className="subtitle">
                 Intelligent charity search backed by{" "}
@@ -117,21 +123,31 @@ export default class Home extends Component {
                 {hasResults && !loading && <p className='has-text-centered result-info-text'>
                   Showing top <b>{results.length}</b> results. Charity matching took <b>{duration}</b> seconds.
                 </p>}
+
+                {hasResults && <div className="columns">
+                      <div className="column charity-col jis-three-quarters">
+                        <b>Charity</b>
+                        </div>
+                        <div className="column rel-col is-one-quarter">
+                          <b>Relevance</b>
+                      </div>
+                </div>}
                 {hasResults && !loading && results.map((result, i) => {
                   const { name, description, url, score } = result
                   const truncatedDescription = truncate(description, {
                     'length': 250,
                     'separator': ' '
                   })
+                  const color = colors[0]
                   return <div key={i} className='search-result-row' onClick={() => this.resultClicked(result)}>
                     <div className="columns">
                         <div className="column is-three-quarters">
                           <h2 className='search-result-heading'>{name}</h2>
                           <p>{truncatedDescription}</p>
-                          <p className='search-result-url'>{url}</p>
+                          <a href={url} target="_blank" className='search-result-url'>{url}</a>
                         </div>
                         <div className="column is-one-quarter">
-                          <span className='search-result-score'>{score || 50}</span>
+                          <span className='search-result-score' style={{ color }}>{score || 50}</span>
                         </div>
                       </div>
                   </div>

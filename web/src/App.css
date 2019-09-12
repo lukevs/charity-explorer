@@ -17,13 +17,29 @@ html {
 }
 
 .search-result-row {
-  height: 250px;
+  height: 220px;
   padding: 20px;
   border-top: 1px solid black;
 }
 
+.charity-col {
+  margin-left: 20px;
+}
+
+.rel-col {
+  margin-right: 20px;
+}
+
 .search-button { 
+  padding: 20px 30px 20px 30px !important;
+  font-size: 20px !important;
+  padding-left: 50px;
   margin-top: 20px;
+}
+
+.header-logo {
+  width: 60px;
+  margin-bottom: 20px;
 }
 
 .result-info-text {
@@ -31,12 +47,13 @@ html {
 }
 
 .search-result-url {
-  margin-top: 20px;
+  padding-top: 15px;
+  margin-top: 25px;
   /* overflow: hidden; */
 }
 
 .search-result-score {
-  line-height: 250px;
+  line-height: 180px;
   font-size: 48px;
 }
 
