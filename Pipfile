@@ -28,8 +28,10 @@ Flask = "==1.1.1"
 "Jinja2" = "==2.10.1"
 MarkupSafe = "==1.1.1"
 Werkzeug = "==0.15.5"
-pandas = "*"
-flask-cors = "*"
+pandas = "==0.25.0"
+pytz = "==2019.2"
+Flask-Cors = "==3.0.8"
+nltk = "*"
 
 [dev-packages]
 
