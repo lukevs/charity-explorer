@@ -41,7 +41,13 @@ def search():
         )
 
     query = request.json['query']
-    results = charity_index.search(query)
+    rank = request.args.get('rank', False)
+
+    results = charity_index.search(
+        query,
+        rank_with_next_sentence_prediction=rank,
+    )
+
     results_as_dict = [
         dataclasses.asdict(charity)
         for charity in results
