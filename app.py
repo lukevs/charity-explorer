@@ -41,7 +41,7 @@ def search():
         )
 
     query = request.json['query']
-    rank = request.args.get('rank', False)
+    rank = request.args.get('rank') == 'true'
 
     results = charity_index.search(
         query,
