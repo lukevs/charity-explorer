@@ -13,4 +13,4 @@ COPY . /app
 
 EXPOSE 5000
 
-CMD [ "pytnon", "app.py" ]
+CMD [ "python", "app.py" ]
