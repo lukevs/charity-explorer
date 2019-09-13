@@ -175,7 +175,7 @@ class CharityIndex:
             .sort_values('similarity', ascending=False)
             .head(top_n))
 
-        best_match_indices = betch_match_charities.index.tolist()
+        best_match_indices = best_match_charities.index.tolist()
 
         matched_charities = [
             self._charities[i]
@@ -194,27 +194,13 @@ class CharityIndex:
             )
 
             rank_indices = torch.argsort(probabilities).numpy()[::-1]
-            rank_similarities = (
-                best_match_charities.iloc[rank_indices]['similarity'],
-            )
 
             return [
-                CharitySearchResult(
-                    charity=matched_charities[i],
-                    score=best_match_charities[i]['similarity'],
-                )
+                matched_charities[i]
                 for i in rank_indices
             ]
         else:
-            similarities = best_match_charities['similarity']
-            return [
-                CharitySearchResult(
-                    charity,
-                    score,
-                )
-                for charity, score
-                in zip(matched_charities, best_match_charities)
-            ]
+            return matched_charities
 
     @classmethod
     def _get_charity_path(cls, path):
