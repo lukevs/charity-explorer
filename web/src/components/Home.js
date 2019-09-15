@@ -89,6 +89,9 @@ export default class Home extends Component {
     const duration = this.getDuration()
 
     const hasResults = results && results.length > 0
+    const hasScore = hasResults && results[0].score
+    const infoWidth = hasScore ? 'is-three-quarters' : 'is-full'
+    console.log(hasScore, infoWidth)
 
     const gradient = tinygradient("red", "yellow", "green")
     const colors = gradient.rgb(101)
@@ -156,12 +159,12 @@ export default class Home extends Component {
 
                 {hasResults && (
                   <div className="columns">
-                    <div className="column charity-col jis-three-quarters">
+                    <div className={`column charity-col ${infoWidth}`}>
                       <b>Charity</b>
                     </div>
-                    <div className="column rel-col is-one-quarter">
+                    {hasScore && <div className="column rel-col is-one-quarter">
                       <b>Relevance Score</b>
-                    </div>
+                    </div>}
                   </div>
                 )}
                 {hasResults &&
@@ -180,7 +183,7 @@ export default class Home extends Component {
                         onClick={() => this.resultClicked(result)}
                       >
                         <div className="columns">
-                          <div className="column is-three-quarters">
+                          <div className={`column ${infoWidth}`}>
                             <h2 className="search-result-heading">{i+1}. {name}</h2>
                             <p>{truncatedDescription}</p>
                             <a
@@ -190,14 +193,14 @@ export default class Home extends Component {
                               {url}
                             </a>
                           </div>
-                          <div className="column is-one-quarter">
+                          {hasScore && <div className="column is-one-quarter">
                             <span
                               className="search-result-score"
                               style={{ color }}
                             >
-                              {score || 50}
+                              {score}
                             </span>
-                          </div>
+                          </div>}
                         </div>
                       </div>
                     )

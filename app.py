@@ -50,6 +50,8 @@ def search():
         query,
         rank_with_next_sentence_prediction=rank,
     )
+    
+    print(results)
 
     results_as_dict = [
         dataclasses.asdict(charity)

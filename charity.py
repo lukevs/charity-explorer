@@ -174,7 +174,6 @@ class CharityIndex:
             .mean()
             .sort_values('similarity', ascending=False)
             .head(top_n))
-
         best_match_indices = best_match_charities.index.tolist()
 
         matched_charities = [
@@ -194,6 +193,7 @@ class CharityIndex:
             )
 
             rank_indices = torch.argsort(probabilities).numpy()[::-1]
+            print(matched_charities[1])
 
             return [
                 matched_charities[i]
