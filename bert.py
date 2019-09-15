@@ -119,4 +119,4 @@ def embed_sentences(sentences):
             attention_mask=attention_mask,
         )
 
-  return output[2][-11].mean(axis=1)
+  return output[2][-11].mean(dim=1)

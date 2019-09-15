@@ -4,6 +4,7 @@ import json
 import os
 import re
 
+import nltk
 import numpy as np
 import pandas as pd
 import torch
@@ -14,6 +15,9 @@ from bert import calculate_next_sentence_probability
 from bert import calculate_similarities
 from bert import embed_sentences
 from utils import batch
+
+
+nltk.download('punkt')
 
 
 def _get_sentence_embeddings(description, embed_batch_size=10):
@@ -37,6 +41,12 @@ class Charity:
     name: str
     description: str
     url: str
+
+
+@dataclasses.dataclass
+class CharitySearchResult:
+    charity: Charity
+    score: float
 
 
 class CharityIndex:
@@ -156,16 +166,16 @@ class CharityIndex:
             'similarity': similarities,
         })
 
-        best_match_indices = (charity_similarities
+        best_match_charities = (charity_similarities
             .sort_values('similarity', ascending=False)
             .groupby('charity')
             .head(use_top_n_sentences)
             .groupby('charity')
             .mean()
             .sort_values('similarity', ascending=False)
-            .head(top_n)
-            .index
-            .tolist())
+            .head(top_n))
+
+        best_match_indices = best_match_charities.index.tolist()
 
         matched_charities = [
             self._charities[i]
@@ -189,8 +199,8 @@ class CharityIndex:
                 matched_charities[i]
                 for i in rank_indices
             ]
-
-        return matched_charities
+        else:
+            return matched_charities
 
     @classmethod
     def _get_charity_path(cls, path):

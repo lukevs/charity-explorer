@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
@@ -6,8 +7,10 @@ from flask_cors import CORS, cross_origin
 from charity import CharityIndex
 
 
-PORT = 8778
 app = Flask(__name__)
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 CORS(app) # TODO: remove for a prod deployment
 
@@ -22,7 +25,7 @@ def build_error_response(message):
 
     return jsonify(error_data), 400
 
-@app.route('/hello', methods=['GET'])
+@app.route('/', methods=['GET'])
 def welcome():
     return jsonify({
         'result': 'Welcome to YouCharity!'
@@ -59,4 +62,4 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(port=PORT, debug=True)
+    app.run(host='0.0.0.0', debug=True)
