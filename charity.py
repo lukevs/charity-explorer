@@ -45,7 +45,9 @@ class Charity:
 
 @dataclasses.dataclass
 class CharitySearchResult:
-    charity: Charity
+    name: str
+    description: str
+    url: str
     score: float
 
 
@@ -193,14 +195,38 @@ class CharityIndex:
             )
 
             rank_indices = torch.argsort(probabilities).numpy()[::-1]
-            print(matched_charities[1])
 
-            return [
+            charities = [
                 matched_charities[i]
                 for i in rank_indices
             ]
+
+            return [
+                CharitySearchResult(
+                    name=charity.name,
+                    url=charity.url,
+                    description=charity.description,
+                    score=score,
+                )
+                for (charity, score) in zip(
+                    charities,
+                    probabilities.tolist(),
+                )
+            ]
         else:
-            return matched_charities
+            matched_similarities = best_match_charities['similarity'].tolist()
+            return [
+                CharitySearchResult(
+                    name=charity.name,
+                    url=charity.url,
+                    description=charity.description,
+                    score=score,
+                )
+                for (charity, score) in zip(
+                    matched_charities,
+                    matched_similarities,
+                )
+            ]
 
     @classmethod
     def _get_charity_path(cls, path):
