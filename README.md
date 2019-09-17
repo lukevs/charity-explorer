@@ -69,6 +69,8 @@ POST localhost:8778/search
     {
       "name": "Dog charity",
       "description": "Best dog charity in town"
+      "url": "https://...",
+      "score": 0.663
     },
     ...
   ]
